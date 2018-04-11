@@ -1,7 +1,7 @@
 // Copyright 2018 Golem Factory
 // Licensed under the GNU General Public License v3. See the LICENSE file.
 
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.20;
 
 import "./open_zeppelin/BurnableToken.sol";
 import "./open_zeppelin/StandardToken.sol";

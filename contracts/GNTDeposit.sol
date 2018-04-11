@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.20;
 
 import "./GolemNetworkTokenBatching.sol";
 import "./ReceivingContract.sol";

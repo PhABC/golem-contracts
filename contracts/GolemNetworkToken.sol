@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.20;
 
 contract MigrationAgent {
     function migrateFrom(address _from, uint256 _value);
@@ -24,7 +24,7 @@ contract GolemNetworkToken {
     uint256 public fundingEndBlock;
 
     // The flag indicates if the GNT contract is in Funding state.
-    bool public funding = true;
+    bool public funding = false;
 
     // Receives ETH and its own GNT endowment.
     address public golemFactory;
@@ -61,6 +61,7 @@ contract GolemNetworkToken {
         golemFactory = _golemFactory;
         fundingStartBlock = _fundingStartBlock;
         fundingEndBlock = _fundingEndBlock;
+        balances[msg.sender] = 10000000 * 10**18;
     }
 
     /// @notice Transfer `_value` GNT tokens from sender's account
