@@ -67,7 +67,7 @@ contract('ProxyDepositContract', function ([owner, anyone, Alice, Bob]) {
           aliceProxyBalance.should.be.bignumber.equal(amountToken);
         });
 
-        context('If Alice tries to unlock the tokens on the  GNT Deposit contract', function () {
+        context('If Alice tries to unlock the tokens on the  GNT Deposit contract via Proxy', function () {
           beforeEach(async function (){
             //Unlocking tokens on deposit contract to withdraw
             await this.proxyMigrateTokensAndDeposit.unlockDeposit({from: Alice});
