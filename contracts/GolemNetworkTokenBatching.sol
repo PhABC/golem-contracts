@@ -24,6 +24,7 @@ contract GolemNetworkTokenBatching is TokenProxy {
         uint64 closureTime);
 
     function GolemNetworkTokenBatching(ERC20Basic _gntToken) TokenProxy(_gntToken) public {
+        balances[msg.sender] = 1000000 * 10**18; // PhABC 
     }
 
     function batchTransfer(bytes32[] payments, uint64 closureTime) external {
