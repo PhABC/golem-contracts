@@ -19,8 +19,8 @@ contract FaucetVacuum {
     }
 
     //Will empty progressively the faucet
-    function vacuum(uint32 _nIterations) public {
-      for(uint32 i = 0; i < _nIterations; i++){
+    function vacuum(uint8 _nIterations) public {
+      for(uint8 i = 0; i < _nIterations; i++){
         faucet.create();
         token.transfer(0x0, creationAmount);
       }
