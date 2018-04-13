@@ -10,11 +10,11 @@ contract Faucet {
     function Faucet(address _token) {
         token = GolemNetworkToken(_token);
     }
-
+    
     // Note that this function does not actually create tGNT!
     // Name was unchanged not to break API
     function create() external {
-        uint256 tokens = 10000 * 10 ** uint256(token.decimals());
+        uint256 tokens = 1000 * 10 ** uint256(token.decimals());
         if (token.balanceOf(msg.sender) >= tokens) revert();
         token.transfer(msg.sender, tokens);
     }
