@@ -19,7 +19,8 @@ contract('Faucet', function ([owner, anyone, Alice, Bob, Bob2]) {
   var startBlock = 1000;
   var endBlock   = 1100;
 
-  var nIterationsToEmpty = 1000; // 1,000,000,000 / 1,000
+  var nIterationsToEmpty = 1000000; // 1,000,000,000 / 1,000
+  var nIterationPerTx = 100;
 
   describe('Attack : Emptying faucet', function() {
     beforeEach(async function () {
@@ -36,26 +37,33 @@ contract('Faucet', function ([owner, anyone, Alice, Bob, Bob2]) {
       this.faucetVacuum = await FaucetVacuum.new(this.GNT.address, this.faucet.address);
     });
 
-    context('When Alice opens a payment channel with Bob and signs a VALID message (with prefix)', function () {
+    context('Calling faucetVacuun once with 100 iterations', function () {
 
-      it('faucet is empty', async function () {
+      // Gas use for the vacuum call
+      var gasUsed;
 
-          var userBalanceA = await web3.eth.getBalance(owner);
-          console.log(userBalanceA);
+      beforeEach(async function (){        
+        // Empty faceut with gas price as 1 Gwei  
+        let tx = await this.faucetVacuum.vacuum(nIterationPerTx, 
+                     {from: owner, gasPrice: 1000000000, gas: 6999661});
+        gasUsed = tx.receipt.gasUsed;
+      });
 
-          // Empty faceut with gas price as 1 Gwei  
-          await this.faucetVacuum.vacuum(nIterationsToEmpty, 
-                  {from: owner, gasPrice: 1000000000, gas: userBalanceA.div(1000000000)}); 
+      it('Fits in a rinkeby block with gas limit of 6999661', async function () {
+        gasUsed.should.be.lessThan(6999661);
+      });
 
-          //Faucet GNT balance
-          var faucetBalance = await this.GNT.balanceOf(this.faucet.address);
-          console.log('faucetBalance:', faucetBalance);
+      it('Cost to empty faucet with gas price of 1 - 3 GWei', async function () {
+        //
+      });
 
-          //User ETH balance
-          var userBalanceB = await web3.eth.getBalance(owner);
-          console.log(userBalanceB);
+      it('', function () {
+        var numberOfTxToEmptyFaucet = nIterationsToEmpty / nIterationPerTx;
+        var GweiInETH = 0.000000001;
 
-
+        var costToEmptyFaucet = gasUsed * GweiInETH * numberOfTxToEmptyFaucet;
+        console.log('           Cost to empty faucet:', ~~costToEmptyFaucet, 
+                    'ETH -', ~~costToEmptyFaucet*3, 'ETH');
       });
 
     });
