@@ -105,6 +105,62 @@ contract GNTPaymentChannels is ReceivingContract {
         return (channels[_ch].owner) == (ecrecover(sha3(_ch, _value), _v, _r, _s));
     }
 
+    ///////////////////////////////////
+    /////////////////////////////////// PhABC
+    ///////////////////////////////////
+
+    //Signatures with prefixed hash
+    function isValidSigPREFIX(
+            bytes32 _ch, 
+            uint _value,
+            uint8 _v, 
+            bytes32 _r, 
+            bytes32 _s) 
+            view returns (bool) 
+    {
+        bytes32 hash = keccak256(_ch, _value); //Hash to sign
+
+        return (channels[_ch].owner) == ecrecover(
+            keccak256("\x19Ethereum Signed Message:\n32", hash), //Prefixed hash
+            _v,
+            _r,
+            _s
+        );
+    }
+
+    //Signatures with prefixed hash or not
+    function isValidSigBOTH(
+            bytes32 _ch, 
+            uint _value,
+            uint8 _v, 
+            bytes32 _r, 
+            bytes32 _s) 
+            view returns (bool) 
+    {
+        //Hash to sign
+        bytes32 hash = keccak256(_ch, _value); 
+
+        //No prefix when hash signed
+        if ( channels[_ch].owner == ecrecover(hash, _v, _r, _s) ){
+            return true;
+        }
+
+        //Prefix when hash signed
+        bytes32 prefixedHash = keccak256("\x19Ethereum Signed Message:\n32", hash);
+        
+        if ( channels[_ch].owner == ecrecover(prefixedHash, _v, _r, _s) ){
+            return true;
+        }
+
+        return false;
+    }
+
+    ///////////////////////////////////
+    /////////////////////////////////// PhABC
+    ///////////////////////////////////
+
+
+
     // functions that modify state
 
     // FIXME: Channel needs to be created before it can be funded.
