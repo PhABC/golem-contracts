@@ -1,4 +1,4 @@
-pragma solidity ^0.4.20;
+pragma solidity ^0.4.18;
 
 contract MigrationAgent {
     function migrateFrom(address _from, uint256 _value);
@@ -14,7 +14,7 @@ contract GolemNetworkToken {
     string public constant symbol = "tGNT";
     uint8 public constant decimals = 18;  // 18 decimal places, the same as ETH.
 
-    uint256 public constant tokenCreationRate = 10000000000;
+    uint256 public constant tokenCreationRate = 1000000000;
 
     // The funding cap in weis.
     uint256 public constant tokenCreationCap = 82 finney * tokenCreationRate;
@@ -61,7 +61,7 @@ contract GolemNetworkToken {
         golemFactory = _golemFactory;
         fundingStartBlock = _fundingStartBlock;
         fundingEndBlock = _fundingEndBlock;
-        balances[msg.sender] = 10000000 * 10**18;
+        balances[msg.sender] = 1000000000 * 10**18; // 1 billion funds
     }
 
     /// @notice Transfer `_value` GNT tokens from sender's account

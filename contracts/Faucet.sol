@@ -1,4 +1,4 @@
-pragma solidity ^0.4.20;
+pragma solidity ^0.4.18;
 
 import "./GolemNetworkToken.sol";
 
@@ -10,7 +10,7 @@ contract Faucet {
     function Faucet(address _token) {
         token = GolemNetworkToken(_token);
     }
-    
+
     // Note that this function does not actually create tGNT!
     // Name was unchanged not to break API
     function create() external {
